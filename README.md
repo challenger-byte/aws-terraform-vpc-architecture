@@ -27,6 +27,51 @@ The architecture ensures:
 - No public IP attached to private EC2
 - Clear separation between reachability and permission
 
+## 🗺 Architecture Diagram
+```
+
+                           Internet
+                               |
+                               |
+                       +----------------+
+                       |  Internet GW   |
+                       +----------------+
+                               |
+                               |
+                +----------------------------------+
+                |              VPC                 |
+                |        10.0.0.0/16               |
+                |                                  |
+                |   +--------------------------+   |
+                |   |     Public Subnet        |   |
+                |   |      10.0.1.0/24         |   |
+                |   |                          |   |
+                |   |   [ Bastion EC2 ]        |   |
+                |   |        (Public IP)       |   |
+                |   |                          |   |
+                |   |     [ NAT Gateway ]      |---+----> Outbound Internet
+                |   +--------------------------+   |
+                |                 |                |
+                |                 |                |
+                |   +--------------------------+   |
+                |   |     Private Subnet       |   |
+                |   |      10.0.2.0/24         |   |
+                |   |                          |   |
+                |   |   [ Private EC2 ]        |   |
+                |   |     (No Public IP)       |   |
+                |   |                          |   |
+                |   +--------------------------+   |
+                +----------------------------------+
+
+This architecture demonstrates separation of reachability (routing) from permission (security groups).
+```
+
+Security Model:
+- SSH allowed only to Bastion (restricted CIDR)
+- Private EC2 allows SSH only from Bastion Security Group
+- Private EC2 has outbound internet via NAT
+- No inbound internet access to private subnet
+
 ---
 
 # 🧱 v1 — Single File Architecture
